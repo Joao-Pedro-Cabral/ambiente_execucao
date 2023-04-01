@@ -89,12 +89,12 @@ TRATOP  K   /0000
         JN  FIXINST ; Corrigir instruções negativas
         DV  Cte1000 ; AC = Opcode
 FIXED   MM  OPCODE
-        JZ  TrataE  ; OPCODE = 0
+        JZ  Trata0  ; OPCODE = 0
         SB  Cte1
-        JZ  TrataE  ; OPCODE = 1
+        JZ  Trata1  ; OPCODE = 1
         LD  OPCODE
         SB  Cte2
-        JZ  TrataE  ; OPCODE = 2
+        JZ  Trata2  ; OPCODE = 2
         LD  OPCODE
         SB  Cte4
         JZ  Trata4  ; OPCODE = 4
@@ -109,16 +109,16 @@ FIXED   MM  OPCODE
         JZ  Trata7  ; OPCODE = 7   
         LD  OPCODE  
         SB  Cte8
-        JZ  TrataE  ; OPCODE = 8   
+        JZ  Trata89 ; OPCODE = 8   
         LD  OPCODE  
         SB  Cte9
-        JZ  TrataE  ; OPCODE = 9   
+        JZ  Trata89 ; OPCODE = 9   
         LD  OPCODE 
         SB  CteA    
-        JZ  TrataE  ; OPCODE = A
+        JZ  TrataA  ; OPCODE = A
         LD  OPCODE
         SB  CteB
-        JZ  TrataE  ; OPCODE = B
+        JZ  TrataB  ; OPCODE = B
 LD_EXEC LD  INSTRU  ; Carrega a instrução a ser executada
         MM  EXEC
         LD  ACUMU   ; Restaura valor antigo do acumulador
@@ -128,6 +128,24 @@ FIXINST DV  Cte2
         AD  READ              
         DV  Cte800            
         JP  FIXED
+
+Trata0  SC  TrataE  ; Determina se há erro de segmentação
+        LD  ADDR    ; PONTEXT = ADDR
+        JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JP não altera AC
+
+Trata1  SC  TrataE  ; Determina se há erro de segmentação
+        LD  ACUMU   
+        JZ  PONT1   
+        RS  TRATOP  ; JZ falhou -> Executar próxima instrução em sequência
+PONT1   LD  ADDR    ; PONTEXT = ADDR(sucesso no JZ)
+        JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JZ não altera AC  
+
+Trata2  SC  TrataE  ; Determina se há erro de segmentação
+        LD  ACUMU   
+        JN  PONT2   
+        RS  TRATOP  ; JN falhou -> Executar próxima instrução em sequência
+PONT2   LD  ADDR    ; PONTEXT = ADDR(sucesso no JN)
+        JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JN não altera AC
 
 Trata4  SC  GETVAR  ; Obter a variável
         JN  NEG4    ; Variável negativa
@@ -184,28 +202,43 @@ ERROR7  LD  E7      ; Error de divisão
         PD  /100    
         HM  FIMAIN  ; Fim da execução
 
-TrataA  SC  EMP     ; A: Empilhar variáveis locais
+Trata89 SC  TrataE  ; Confere se há erro de segmentação (Mesmo código para 8 e 9)
         JP  LD_EXEC ; Fim do tratamento
 
-TrataB  SC  DMP     ; B: Desempilhar variáveis locais
-        JP  LD_EXEC ; Fim do tratamento
+TrataA  SC  TrataE  ; Checa erros de segmentação
+        SC  EMP     ; A: Empilhar variáveis locais
+        LD  ADDR        
+        AD  WRITE
+        MM  WRTA
+        LD  PONTEXT
+        AD  Cte2
+WRTA    K   /0000   ; Endereço de retorno da subrotina: PONTEXT + 2
+        LD  ADDR
+        MM  PONTEXT ; PONTEXT = ADDR
+        LD  ACUMU
+        RS  TRATOP  ; Fim do tratamento
 
-TrataE  SC  GETADDR ; Obter o endereço do OI
+TrataB  SC  TrataE  ; Checa erros de segmentação
+        SC  DMP     ; B: Desempilhar variáveis locais
+        LD  ADDR
+        AD  READ
+        MM  READB
+READB   K   /0000
+        MM  PONTEXT ; PONTEXT = Endereço de retorno da subrotina
+        JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP)
+
+                    ; Sub-rotina TrataE(ndereço)
+TrataE  K   /0000
+        SC  GETADDR ; Obter o endereço do OI
         SB  TOPTEXT 
         JN  ERRORSF ; ADDR < TOPTEXT -> Segmentation Fault
         LD  ADDR
         SB  TOPDEB
-        JN  CHECKAB ; Acesso a endereço permitido -> Verificar se devemos usar a pilha
+        JN  NEXT    ; Seguir para a próxima parte do tratamento
 ERRORSF LD  SF      ; Erro de segmentação
         PD  /100
         HM  FIMAIN
-CHECKAB LD  OPCODE 
-        SB  CteA    
-        JZ  TrataA  ; OPCODE = A
-        LD  OPCODE
-        SB  CteB
-        JZ  TrataB  ; OPCODE = B
-        JP  LD_EXEC ; OPCODE != A, B -> Load Exec
+NEXT    RS  TrataE  ; Retorno da subrotina
 
 
                     ; GETVAR
