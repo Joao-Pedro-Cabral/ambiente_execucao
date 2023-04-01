@@ -4,16 +4,34 @@
         <   DEBUG
         &   /0000
                     ; Constantes
+Cte1    K   /0001
 Cte2    K   /0002  
 Cte4    K   /0004
 Cte5    K   /0005
 Cte6    K   /0006
 Cte7    K   /0007
+Cte8    K   /0008
+Cte9    K   /0009
 CteA    K   /000A     
 CteB    K   /000B 
 Cte1000 K   /1000  
 READ    K   /8000   
 WRITE   K   /9000
+Cte_1   K   /FFFF
+E0      K   /4530
+E1      K   /4531
+E2      K   /4532
+E4      K   /4534
+E5      K   /4535
+E6      K   /4536
+E7      K   /4537
+E8      K   /4538
+E9      K   /4539
+EA      K   /453A
+EB      K   /453B
+SF      K   /5346
+SO      K   /534F
+SU      K   /5355
 
         &   /0100
                     ; Variáveis
@@ -21,7 +39,8 @@ SP      K   /0FFE   ; Topo da pilha -> Primeiro endereço vazio
 TOPTEXT K   /0008   ; Primeiro endereço da área de instruções
 TOPLOC  K   /0000   ; Primeiro endereço da área de variáveis locais
 TOPGLO  K   /0000   ; Primeiro endereço da área de variáveis globais
-TOPDEB  K   /0000   ; Primeiro endereço da área de linhas de depuração    
+TOPDEB  K   /0000   ; Primeiro endereço da área de linhas de depuração 
+TOPLIV  K   /0000   ; Primeiro endereço da área livre   
 
         &   /0200
 PONTEXT K   /0000   ; Endereço atual do texto
@@ -52,29 +71,147 @@ FIMAIN  HM  FIMAIN  ; Fim da execução
         &   /0300
 INSTRU  K   /0000   ; Instrução a ser tratada
 ACUMU   K   /0000   ; Valor do Acumulador usado na execução
+VAR     K   /0000   ; Variável da instrução
+ADDR    K   /0000   ; Endereço da variável da instrução
 OPCODE  K   /0000   ; Opcode da instrução
                     ; Trata operação
 TRATOP  K   /0000
         LD  INSTRU
         DV  Cte1000 ; AC = Opcode
         MM  OPCODE
+        JZ  TrataE  ; OPCODE = 0
+        SB  Cte1
+        JZ  TrataE  ; OPCODE = 1
+        LD  OPCODE
+        SB  Cte2
+        JZ  TrataE  ; OPCODE = 2
+        LD  OPCODE
+        SB  Cte4
+        JZ  Trata4  ; OPCODE = 4
+        LD  OPCODE  
+        SB  Cte5
+        JZ  Trata5  ; OPCODE = 5
+        LD  OPCODE  
+        SB  Cte6
+        JZ  Trata6  ; OPCODE = 6    
+        LD  OPCODE  
+        SB  Cte7
+        JZ  Trata7  ; OPCODE = 7   
+        LD  OPCODE  
+        SB  Cte8
+        JZ  TrataE  ; OPCODE = 8   
+        LD  OPCODE  
+        SB  Cte9
+        JZ  TrataE  ; OPCODE = 9   
+        LD  OPCODE 
         SB  CteA    
-        JZ  TrataA  ; OPCODE = A
+        JZ  TrataE  ; OPCODE = A
         LD  OPCODE
         SB  CteB
-        JZ  TrataB  ; OPCODE = B
+        JZ  TrataE  ; OPCODE = B
 LD_EXEC LD  INSTRU  ; Carrega a instrução a ser executada
         MM  EXEC
         LD  ACUMU   ; Restaura valor antigo do acumulador
 EXEC    K   /0000   ; Executa a instrução
         RS  TRATOP  ; Fim da subrotina
+
+Trata4  SC  GETVAR  ; Obter a variável
+        JN  NEG4    ; Variável negativa
+        LD  ACUMU   
+        JN  LD_EXEC ; ACUMU < 0 e VAR > 0 -> Sem overflow
+        AD  VAR    
+        JN  ERROR4  ; VAR + ACUMU < 0, VAR > 0 e ACUMU > 0 -> Overflow
+NEG4    LD  ACUMU
+        JN  NEG4_2
+        JP  LD_EXEC ; ACUMU > 0 e VAR < 0 -> Sem overflow
+NEG4_2  AD  VAR
+        JN  LD_EXEC ; VAR + ACUMU < 0, VAR < 0 e ACUMU < 0 -> Sem Overflow
+ERROR4  LD  E4
+        PD  /100    ; Error: Overflow
+        HM  FIMAIN  ; Fim da execução
+
+Trata5  SC  GETVAR  ; Obter a variável
+        JN  NEG5    ; Variável negativa
+        LD  ACUMU   
+        JN  NEG5_2 
+        JP  LD_EXEC ; ACUMU > 0 e VAR > 0 -> Sem overflow
+NEG5_2  SB  VAR    
+        JN  LD_EXEC ; VAR + ACUMU < 0, VAR > 0 e ACUMU < 0 -> Sem overflow
+        JP  ERROR5  ; Overflow 
+NEG5    LD  ACUMU
+        JN  LD_EXEC ; VAR < 0 e ACUMU < 0 -> Sem overflow
+        SB  VAR
+        JN  ERROR5  ; VAR + ACUMU < 0, VAR < 0 e ACUMU > 0 -> Overflow
+        JP  LD_EXEC ; Sem overflow
+ERROR5  LD  E5      ; Error: Overflow
+        PD  /100
+        HM  FIMAIN  ; Fim da execução
+
+Trata6  SC  GETVAR  ; Obter variável
+        JN  MVAR_1  ; VAR < 0 -> Inverter sinal
+CHECKAC MM  VAR     ; VAR = -VAR
+        LD  ACUMU
+        JN  MAC_1
+MULTI   ML  VAR     
+        JN  ERROR6  ; |VAR|*|ACUMU| < 0 -> Overflow
+        JP  LD_EXEC
+MVAR_1  ML  Cte_1   ; VAR > 0
+        JP  CHECKAC
+MAC_1   ML  Cte_1   ; ACUMU > 0
+        JP  MULTI
+ERROR6  LD  E6      ; Overflow
+        PD  /100
+        HM  FIMAIN
+
+Trata7  SC  GETVAR  ; Obter variável
+        JZ  ERROR7  ; Divisão por 0
+        JP  LD_EXEC ; Fim da tratativa
+ERROR7  LD  E7      ; Error de divisão
+        PD  /100    
+        HM  FIMAIN  ; Fim da execução
+
 TrataA  SC  EMP     ; A: Empilhar variáveis locais
         JP  LD_EXEC ; Fim do tratamento
+
 TrataB  SC  DMP     ; B: Desempilhar variáveis locais
         JP  LD_EXEC ; Fim do tratamento
 
+TrataE  SC  GETADDR ; Obter o endereço do OI
+        SB  TOPTEXT 
+        JN  ERRORSF ; ADDR < TOPTEXT -> Segmentation Fault
+        LD  ADDR
+        SB  TOPDEB
+        JN  CHECKAB ; Acesso a endereço permitido -> Verificar se devemos usar a pilha
+ERRORSF LD  SF      ; Erro de segmentação
+        PD  /100
+        HM  FIMAIN
+CHECKAB LD  OPCODE 
+        SB  CteA    
+        JZ  TrataA  ; OPCODE = A
+        LD  OPCODE
+        SB  CteB
+        JZ  TrataB  ; OPCODE = B
+        JP  LD_EXEC ; OPCODE != A, B -> Load Exec
 
-        &   /0400
+
+                    ; GETVAR
+GETVAR  SC  GETADDR
+        AD  READ
+        MM  RADDR   ; RADDR = ADDR + 8000
+RADDR   K   /0000   ; Obtêm a variável da subtracao
+        MM  VAR  
+        RS  GETVAR
+
+                    ; GETADDR
+GETADDR K   /0000
+        LD  OPCODE
+        ML  Cte1000
+        SB  INSTRU
+        ML  Cte_1
+        MM  ADDR    ; ADDR = (OPCODE*1000 - INSTRU)*(-1)
+        RS  GETADDR
+
+        &   /0500
 PONTLOC K   /0000   ; Ponteiro do endereço atual da área de variáveis locais
                     ; Empilhar
 PONTGLO K   /0000   ; Primeiro endereço da área de variáveis globais
@@ -99,13 +236,21 @@ LEITURA K   /0000   ; Leitura da variável apontada pelo PONTLOC
 WRT_TOP K   /0000   ; Mem[SP] = TEMPEMP 
         LD  SP      
         SB  Cte2
+        SB  TOPLIV
+        SB  Cte2
+        JN  ERROEMP ; SP > TOPLIV -> Stack Overflow!
+        LD  SP      
+        SB  Cte2
         MM  SP      ; SP = SP - 2 -> Empilhar
         LD  PONTLOC  
         AD  Cte2    ; PONTLOC = PONTLOC + 2
         JP  LOOPEMP ; Recomeçar o LOOP
 FIMEMP  RS  EMP     ; Fim da subrotina
+ERROEMP LD  SO      ; SP > TOPLIV -> Stack Overflow!
+        PD  /100
+        HM  FIMAIN
 
-        &   /0500
+        &   /0600
                     ; Desempilhar
 PTOPLOC K   /0000   ; Ponteiro da primeira variável da área de variáveis locais
 TEMPDMP K   /0000   ; Variável a ser armazenada na memória local
@@ -121,6 +266,10 @@ LOOPDMP MM  PONTLOC ; PONTLOC = TOPGLO - 2 + WRITE
         JN  FIMDMP  ; PONTLOC < PTOPLOC -> Fim da subrotina
         LD  SP
         AD  Cte2
+        SB  Cte1000
+        JZ  ERRODMP
+        LD  SP
+        AD  Cte2
         MM  SP      ; SP = SP + 2
         AD  READ
         MM  RD_TOP  ; RD_TOP = READ + SP + 2
@@ -134,4 +283,7 @@ ESCRITA K   /0000   ; Mem[PONTLOC] = TEMPDMP
         SB  Cte2    ; PONTLOC = PONTLOC - 2
         JP  LOOPDMP ; Recomeçar o LOP
 FIMDMP  RS  DMP     ; Fim da subrotina
+ERRODMP LD  SU      ; SP = 1000 -> Erro!
+        PD  /100
+        HM  FIMAIN
         #   MAIN    ; Executar a função principal
