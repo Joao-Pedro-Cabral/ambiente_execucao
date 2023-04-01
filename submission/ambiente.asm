@@ -14,6 +14,7 @@ Cte8    K   /0008
 Cte9    K   /0009
 CteA    K   /000A     
 CteB    K   /000B 
+Cte800  K   /0800
 Cte1000 K   /1000  
 READ    K   /8000   
 WRITE   K   /9000
@@ -36,7 +37,7 @@ SU      K   /5355
         &   /0100
                     ; Variáveis
 SP      K   /0FFE   ; Topo da pilha -> Primeiro endereço vazio 
-TOPTEXT K   /0008   ; Primeiro endereço da área de instruções
+TOPTEXT K   /0000   ; Primeiro endereço da área de instruções
 TOPLOC  K   /0000   ; Primeiro endereço da área de variáveis locais
 TOPGLO  K   /0000   ; Primeiro endereço da área de variáveis globais
 TOPDEB  K   /0000   ; Primeiro endereço da área de linhas de depuração 
@@ -44,19 +45,27 @@ TOPLIV  K   /0000   ; Primeiro endereço da área livre
 
         &   /0200
 PONTEXT K   /0000   ; Endereço atual do texto
+RTOPLOC K   /0000   ; RTOPLOC = TOPLOC + READ
                     ; Programa Principal
-MAIN    LD  TOPTEXT
+MAIN    LV  TEXTO
+        AD  Cte8   
+        MM  TOPTEXT ; TOPTEXT = 8 + & TEXTO
         AD  TEXTO
         MM  TOPLOC  ; TOPLOC = TOPTEXT + TEXTO
         AD  LOCAL   
         MM  TOPGLO  ; TOPGLO = TOPLOC + LOCAL
         AD  GLOBAL   
         MM  TOPDEB  ; TOPDEB = TOPGLO + GLOBAL
+        AD  DEBUG 
+        MM  TOPLIV  ; TOPLIV = TOPDEB + DEBUG
+        LD  TOPLOC  
+        AD  READ
+        MM  RTOPLOC
         LD  TOPTEXT
         AD  READ    ; PONTEXT = TOPTEXT + READ
 LOOPM   MM  PONTEXT 
-        SB  TOPLOC
-        JZ  FIMAIN  ; PONTEXT = TOPLOC -> Todas as instruções foram executadas
+        SB  RTOPLOC
+        JZ  FIMAIN  ; PONTEXT = RTOPLOC -> Todas as instruções foram executadas
         LD  PONTEXT 
         MM  RD_INST 
 RD_INST K   /0000   ; Obter instrução 
@@ -77,8 +86,9 @@ OPCODE  K   /0000   ; Opcode da instrução
                     ; Trata operação
 TRATOP  K   /0000
         LD  INSTRU
+        JN  FIXINST ; Corrigir instruções negativas
         DV  Cte1000 ; AC = Opcode
-        MM  OPCODE
+FIXED   MM  OPCODE
         JZ  TrataE  ; OPCODE = 0
         SB  Cte1
         JZ  TrataE  ; OPCODE = 1
@@ -114,6 +124,10 @@ LD_EXEC LD  INSTRU  ; Carrega a instrução a ser executada
         LD  ACUMU   ; Restaura valor antigo do acumulador
 EXEC    K   /0000   ; Executa a instrução
         RS  TRATOP  ; Fim da subrotina
+FIXINST DV  Cte2
+        AD  READ              
+        DV  Cte800            
+        JP  FIXED
 
 Trata4  SC  GETVAR  ; Obter a variável
         JN  NEG4    ; Variável negativa
@@ -237,7 +251,6 @@ WRT_TOP K   /0000   ; Mem[SP] = TEMPEMP
         LD  SP      
         SB  Cte2
         SB  TOPLIV
-        SB  Cte2
         JN  ERROEMP ; SP > TOPLIV -> Stack Overflow!
         LD  SP      
         SB  Cte2
