@@ -45,7 +45,6 @@ TOPLIV  K   /0000   ; Primeiro endereço da área livre
 
         &   /0200
 PONTEXT K   /0000   ; Endereço atual do texto
-RTOPLOC K   /0000   ; RTOPLOC = TOPLOC + READ
                     ; Programa Principal
 MAIN    LV  TEXTO
         AD  Cte8   
@@ -58,15 +57,9 @@ MAIN    LV  TEXTO
         MM  TOPDEB  ; TOPDEB = TOPGLO + GLOBAL
         AD  DEBUG 
         MM  TOPLIV  ; TOPLIV = TOPDEB + DEBUG
-        LD  TOPLOC  
-        AD  READ
-        MM  RTOPLOC
         LD  TOPTEXT
         AD  READ    ; PONTEXT = TOPTEXT + READ
 LOOPM   MM  PONTEXT 
-        SB  RTOPLOC
-        JZ  FIMAIN  ; PONTEXT = RTOPLOC -> Todas as instruções foram executadas
-        LD  PONTEXT 
         MM  RD_INST 
 RD_INST K   /0000   ; Obter instrução 
         MM  INSTRU
@@ -147,12 +140,14 @@ Trata2  SC  TrataE  ; Determina se há erro de segmentação
 PONT2   LD  ADDR    ; PONTEXT = ADDR(sucesso no JN)
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JN não altera AC
 
-Trata4  SC  GETVAR  ; Obter a variável
+Trata4  SC  TrataE
+        SC  GETVAR  ; Obter a variável
         JN  NEG4    ; Variável negativa
         LD  ACUMU   
         JN  LD_EXEC ; ACUMU < 0 e VAR > 0 -> Sem overflow
         AD  VAR    
         JN  ERROR4  ; VAR + ACUMU < 0, VAR > 0 e ACUMU > 0 -> Overflow
+        JP  LD_EXEC ; VAR + ACUMU > 0, VAR > 0, ACUMU > 0 -> Sem Overflow
 NEG4    LD  ACUMU
         JN  NEG4_2
         JP  LD_EXEC ; ACUMU > 0 e VAR < 0 -> Sem overflow
@@ -162,7 +157,8 @@ ERROR4  LD  E4
         PD  /100    ; Error: Overflow
         HM  FIMAIN  ; Fim da execução
 
-Trata5  SC  GETVAR  ; Obter a variável
+Trata5  SC  TrataE
+        SC  GETVAR  ; Obter a variável
         JN  NEG5    ; Variável negativa
         LD  ACUMU   
         JN  NEG5_2 
@@ -179,23 +175,31 @@ ERROR5  LD  E5      ; Error: Overflow
         PD  /100
         HM  FIMAIN  ; Fim da execução
 
-Trata6  SC  GETVAR  ; Obter variável
+VAR2     K  /0000   ; Temporário do Trata6
+
+Trata6  SC  TrataE
+        SC  GETVAR  ; Obter variável
         JN  MVAR_1  ; VAR < 0 -> Inverter sinal
 CHECKAC MM  VAR     ; VAR = -VAR
         LD  ACUMU
         JN  MAC_1
-MULTI   ML  VAR     
-        JN  ERROR6  ; |VAR|*|ACUMU| < 0 -> Overflow
-        JP  LD_EXEC
+MULTI   MM  VAR2
+        ML  VAR
+        JZ  LD_EXEC
+        DV  VAR2    ; AC = |VAR| * |ACUMU| / |ACUMU|
+        SB  VAR     ; AC = AC - VAR   
+        JZ  LD_EXEC
+        LD  E6      ; ERRO6, overflow
+        PD  /100
+        HM  FIMAIN
 MVAR_1  ML  Cte_1   ; VAR > 0
         JP  CHECKAC
 MAC_1   ML  Cte_1   ; ACUMU > 0
         JP  MULTI
-ERROR6  LD  E6      ; Overflow
-        PD  /100
-        HM  FIMAIN
 
-Trata7  SC  GETVAR  ; Obter variável
+
+Trata7  SC  TrataE
+        SC  GETVAR  ; Obter variável
         JZ  ERROR7  ; Divisão por 0
         JP  LD_EXEC ; Fim da tratativa
 ERROR7  LD  E7      ; Error de divisão
@@ -212,9 +216,11 @@ TrataA  SC  TrataE  ; Checa erros de segmentação
         MM  WRTA
         LD  PONTEXT
         AD  Cte2
+        SB  READ
 WRTA    K   /0000   ; Endereço de retorno da subrotina: PONTEXT + 2
         LD  ADDR
-        MM  PONTEXT ; PONTEXT = ADDR
+        AD  READ
+        MM  PONTEXT ; PONTEXT = ADDR + READ
         LD  ACUMU
         RS  TRATOP  ; Fim do tratamento
 
@@ -224,6 +230,7 @@ TrataB  SC  TrataE  ; Checa erros de segmentação
         AD  READ
         MM  READB
 READB   K   /0000
+        AD  READ
         MM  PONTEXT ; PONTEXT = Endereço de retorno da subrotina
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP)
 
@@ -242,7 +249,8 @@ NEXT    RS  TrataE  ; Retorno da subrotina
 
 
                     ; GETVAR
-GETVAR  SC  GETADDR
+GETVAR  K   /0000
+        SC  GETADDR
         AD  READ
         MM  RADDR   ; RADDR = ADDR + 8000
 RADDR   K   /0000   ; Obtêm a variável da subtracao
