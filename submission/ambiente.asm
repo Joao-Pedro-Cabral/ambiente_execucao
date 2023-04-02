@@ -123,21 +123,24 @@ FIXINST DV  Cte2
         JP  FIXED
 
 Trata0  SC  TrataE  ; Determina se há erro de segmentação
-        LD  ADDR    ; PONTEXT = ADDR
+        LD  ADDR    
+        AD  READ    ; PONTEXT = ADDR + READ
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JP não altera AC
 
 Trata1  SC  TrataE  ; Determina se há erro de segmentação
         LD  ACUMU   
         JZ  PONT1   
         RS  TRATOP  ; JZ falhou -> Executar próxima instrução em sequência
-PONT1   LD  ADDR    ; PONTEXT = ADDR(sucesso no JZ)
+PONT1   LD  ADDR    
+        AD  READ    ; PONTEXT = ADDR + READ (sucesso no JZ)
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JZ não altera AC  
 
 Trata2  SC  TrataE  ; Determina se há erro de segmentação
         LD  ACUMU   
         JN  PONT2   
         RS  TRATOP  ; JN falhou -> Executar próxima instrução em sequência
-PONT2   LD  ADDR    ; PONTEXT = ADDR(sucesso no JN)
+PONT2   LD  ADDR    
+        AD  READ    ; PONTEXT = ADDR + READ (sucesso no JN)
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JN não altera AC
 
 Trata4  SC  TrataE

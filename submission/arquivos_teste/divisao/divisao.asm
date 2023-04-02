@@ -12,7 +12,7 @@ DEBUG   K   /0000
         MM  C
         PD  /100
         HM  /0000
-DIV     K   /0000   ; Sub-rotina SUM 
+DIV     K   /0000   ; Sub-rotina DIV 
         LD  A
         DV  B       ; AC = A / B
         RS  DIV     

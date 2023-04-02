@@ -12,7 +12,7 @@ DEBUG   K   /0000
         MM  B
         PD  /100
         HM  /0000
-SUB     K   /0000   ; Sub-rotina SUM 
+SUB     K   /0000   ; Sub-rotina SUB 
         LV  =800
         SB  A       ; AC = 800 - A
         RS  SUB     

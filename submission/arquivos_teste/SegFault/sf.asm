@@ -13,7 +13,7 @@ DEBUG   K   /0000
         LD  C
         PD  /100
         HM  /0000
-MUL     K   /0000   ; Sub-rotina SUM 
+MUL     K   /0000   ; Sub-rotina MUL
         LD  A
         ML  B       ; AC = A * B
         RS  MUL     

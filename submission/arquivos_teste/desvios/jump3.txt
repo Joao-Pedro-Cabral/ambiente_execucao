@@ -1,11 +1,11 @@
 #DEF PP 20560
 #DEF OO 20303
 
-#####################
+
   int SUM (int A, int B){
        return A + B; 
   }
-#####################
+
     int A;
     int B;
     int C;

@@ -1,8 +1,8 @@
-#####################
+
   int SUM (int A, int B){
        return A + B; 
   }
-#####################
+
     int A;
     int B;
     int C;
