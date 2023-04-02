@@ -1,4 +1,5 @@
-#DEF CONST 32
+  int CONST;
+  CONST = 32;
 
 
   int SUM (int A, int B){

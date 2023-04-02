@@ -1,4 +1,5 @@
-#DEF CONST 69
+  int CONST;
+  CONST = 69;
 
 
   int SUM (int A, int B){

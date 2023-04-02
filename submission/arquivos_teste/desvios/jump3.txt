@@ -1,5 +1,7 @@
-#DEF PP 20560
-#DEF OO 20303
+  int PP; 
+  PP = 20560;
+  int OO;
+  OO = 20303;
 
 
   int SUM (int A, int B){

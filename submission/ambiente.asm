@@ -300,14 +300,12 @@ LOOPEMP MM  PONTLOC
 LEITURA K   /0000   ; Leitura da variável apontada pelo PONTLOC
         MM  TEMPEMP
         LD  SP
+        SB  TOPLIV  
+        JN  ERROEMP ; SP > TOPLIV -> Stack Overflow!
         AD  WRITE   
         MM  WRT_TOP ; WRT_TOP = WRITE + SP
         LD  TEMPEMP 
 WRT_TOP K   /0000   ; Mem[SP] = TEMPEMP 
-        LD  SP      
-        SB  Cte2
-        SB  TOPLIV
-        JN  ERROEMP ; SP > TOPLIV -> Stack Overflow!
         LD  SP      
         SB  Cte2
         MM  SP      ; SP = SP - 2 -> Empilhar
