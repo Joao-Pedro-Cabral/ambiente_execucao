@@ -50,6 +50,7 @@ TOPLIV  K   /0000   ; Primeiro endereço da área livre
 
         &   /0200
 PONTEXT K   /0000   ; Endereço atual do texto
+PONTLIV K   /0000   ; 1º endereço livre somado com READ
                     ; Programa Principal
 MAIN    LV  TEXTO
         AD  Cte8   
@@ -62,6 +63,8 @@ MAIN    LV  TEXTO
         MM  TOPDEB  ; TOPDEB = TOPGLO + GLOBAL
         AD  DEBUG 
         MM  TOPLIV  ; TOPLIV = TOPDEB + DEBUG
+        AD  READ
+        MM  PONTLIV
         LD  TOPTEXT
         AD  READ    ; PONTEXT = TOPTEXT + READ
 LOOPM   MM  PONTEXT 
@@ -120,7 +123,8 @@ FIXED   MM  OPCODE
         LD  OPCODE
         SB  CteF
         JZ  TrataF  ; OPCODE = F
-LD_EXEC LD  INSTRU  ; Carrega a instrução a ser executada(OPCODE = 4 a 9 ou C ou D)
+LD_EXEC SC  DEPURA  ; Depuração
+        LD  INSTRU  ; Carrega a instrução a ser executada(OPCODE = 4 a 9 ou C ou D)
         MM  EXEC
         LD  ACUMU   ; Restaura valor antigo do acumulador
 EXEC    K   /0000   ; Executa a instrução
@@ -131,11 +135,13 @@ FIXINST DV  Cte2
         JP  FIXED
 
 Trata0  SC  TrataE  ; Determina se há erro de segmentação
+        SC  DEPURA  ; Depuração
         LD  ADDR    
         AD  READ    ; PONTEXT = ADDR + READ
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JP não altera AC
 
 Trata1  SC  TrataE  ; Determina se há erro de segmentação
+        SC  DEPURA  ; Depuração
         LD  ACUMU   
         JZ  PONT1   
         RS  TRATOP  ; JZ falhou -> Executar próxima instrução em sequência
@@ -144,6 +150,7 @@ PONT1   LD  ADDR
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JZ não altera AC  
 
 Trata2  SC  TrataE  ; Determina se há erro de segmentação
+        SC  DEPURA  ; Depuração
         LD  ACUMU   
         JN  PONT2   
         RS  TRATOP  ; JN falhou -> Executar próxima instrução em sequência
@@ -221,6 +228,7 @@ Trata89 SC  TrataE  ; Confere se há erro de segmentação (Mesmo código para 8
         JP  LD_EXEC ; Fim do tratamento
 
 TrataA  SC  TrataE  ; Checa erros de segmentação
+        SC  DEPURA  ; Depuração
         SC  EMP     ; A: Empilhar variáveis locais
         LD  ADDR        
         AD  WRITE
@@ -236,6 +244,7 @@ WRTA    K   /0000   ; Endereço de retorno da subrotina: PONTEXT + 2
         RS  TRATOP  ; Fim do tratamento
 
 TrataB  SC  TrataE  ; Checa erros de segmentação
+        SC  DEPURA  ; Depuração
         SC  DMP     ; B: Desempilhar variáveis locais
         LD  ADDR
         AD  READ
@@ -354,4 +363,24 @@ FIMDMP  RS  DMP     ; Fim da subrotina
 ERRODMP LD  SU      ; SP = 1000 -> Erro!
         PD  /100
         HM  FIMAIN
+
+        &   /0700
+PONTDEB K   /0000
+                    ; DEPURA
+DEPURA  K   /0000
+        LD  TOPDEB
+        AD  READ
+LOOPDB  MM  PONTDEB ; Conferir se PONTEXT está na lista de depuração
+        SB  PONTLIV 
+        JZ  FIMDEPU ; PONTLIV = PONTDEB -> Fim da lista de Break-Point's
+        LD  PONTDEB
+        MM  BREAKP  ; BREAKP = PONTDEB
+BREAKP  K   /0000   ; BREAK-POINT
+        SB  PONTEXT 
+        JZ  BREAK   ; PONTEXT = *PONTDEB -> Break-Point 
+        LD  PONTDEB
+        AD  Cte2    ; PONTDEB = PONTDEB + 2
+        JP  LOOPDB  ; Recomeçar loop
+BREAK   GD  /000    ; BREAK-POINT
+FIMDEPU RS  DEPURA  ; Fim da depuração
         #   MAIN    ; Executar a função principal
