@@ -4,6 +4,7 @@
         <   DEBUG
         &   /0000
                     ; Constantes
+                    ; Determinar o OPCODE
 Cte1    K   /0001
 Cte2    K   /0002  
 Cte4    K   /0004
@@ -14,11 +15,14 @@ Cte8    K   /0008
 Cte9    K   /0009
 CteA    K   /000A     
 CteB    K   /000B 
+CteF    K   /000F
+                    ; Auxiliares para operações aritméticas
 Cte800  K   /0800
 Cte1000 K   /1000  
 READ    K   /8000   
 WRITE   K   /9000
 Cte_1   K   /FFFF
+                    ; Mensagens de Erro    
 E0      K   /4530
 E1      K   /4531
 E2      K   /4532
@@ -30,6 +34,7 @@ E8      K   /4538
 E9      K   /4539
 EA      K   /453A
 EB      K   /453B
+NA      K   /4E41
 SF      K   /5346
 SO      K   /534F
 SU      K   /5355
@@ -112,7 +117,10 @@ FIXED   MM  OPCODE
         LD  OPCODE
         SB  CteB
         JZ  TrataB  ; OPCODE = B
-LD_EXEC LD  INSTRU  ; Carrega a instrução a ser executada
+        LD  OPCODE
+        SB  CteF
+        JZ  TrataF  ; OPCODE = F
+LD_EXEC LD  INSTRU  ; Carrega a instrução a ser executada(OPCODE = 4 a 9 ou C ou D)
         MM  EXEC
         LD  ACUMU   ; Restaura valor antigo do acumulador
 EXEC    K   /0000   ; Executa a instrução
@@ -236,6 +244,10 @@ READB   K   /0000
         AD  READ
         MM  PONTEXT ; PONTEXT = Endereço de retorno da subrotina
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP)
+
+TrataF  LD  NA      ; OS: Não suportado por C-- -> Proibido!
+        PD  /100    ; Imprimir NA
+        HM  FIMAIN  ; Fim da subrotina
 
                     ; Sub-rotina TrataE(ndereço)
 TrataE  K   /0000
