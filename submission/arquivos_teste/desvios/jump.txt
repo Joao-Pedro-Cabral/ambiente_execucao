@@ -1,0 +1,19 @@
+#DEF CONST 32
+
+#####################
+  int SUM (int A, int B){
+       return A + B; 
+  }
+#####################
+    int A;
+    int B;
+    int C;
+    A = 21248;
+    B = 69;
+
+    C = SUM(A, B);
+    if(C >= CONST) 
+       C = CONST
+    print(C);
+    
+

@@ -1,0 +1,13 @@
+#####################
+  int DIV (int A, int B){
+       return A / B; 
+  }
+#####################
+    int A;
+    int B;
+    int C;
+    A = 21600;
+    B = 16;
+    C = DIV(A, B);
+    print(C);
+    

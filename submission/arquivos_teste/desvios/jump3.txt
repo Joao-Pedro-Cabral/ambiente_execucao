@@ -1,0 +1,26 @@
+#DEF PP 20560
+#DEF OO 20303
+
+#####################
+  int SUM (int A, int B){
+       return A + B; 
+  }
+#####################
+    int A;
+    int B;
+    int C;
+    int D;
+    A = 21248;
+    B = 69;
+
+    scan(D);
+    C = SUM(A, B);
+    if(D == PP) 
+       C = PP;
+    if(D > PP)
+       C = OO;
+    if(D < PP)
+       C = OO;
+    print(C);
+    
+

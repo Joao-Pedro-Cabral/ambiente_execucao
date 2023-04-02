@@ -12,9 +12,9 @@ DEBUG   K   /0000
         MM  C
         SB  CONST
         JN  OUT_IF
-        LD  C
-        PD  /100
-OUT_IF  LD  CONST
+        LD  CONST
+        MM  C
+OUT_IF  LD  C
         PD  /100
         HM  /0000
 SUM     K   /0000   ; Sub-rotina SUM 
@@ -26,4 +26,4 @@ A       K   /0008
 B       K   /0025
 C       K   /0000
                     ; GLOBAL
-CONST   K   /0040
+CONST   K   /0045

@@ -1,0 +1,12 @@
+#####################
+  int MUL (int A, int B){
+       return A * B; 
+  }
+#####################
+    int A;
+    int B;
+    int C;
+    A = 2560;
+    B = 2560;
+    C = MUL(A, B);
+    print(C);

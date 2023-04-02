@@ -3,7 +3,7 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /0016
+TEXTO   K   /001A
 LOCAL   K   /0006
 GLOBAL  K   /0002
 DEBUG   K   /0000
@@ -11,10 +11,12 @@ DEBUG   K   /0000
         SC  SUM  
         MM  C
         SB  CONST
-        JN  END_CD
-        LD  C
+        JN  OUT_IF
+        LD  CONST
+        MM  C
+OUT_IF  LD  C
         PD  /100
-END_CD  HM  /0000
+        HM  /0000
 SUM     K   /0000   ; Sub-rotina SUM 
         LD  A
         AD  B       ; AC = A + B

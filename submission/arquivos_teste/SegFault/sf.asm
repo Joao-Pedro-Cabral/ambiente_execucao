@@ -3,13 +3,14 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /0010
+TEXTO   K   /0012
 LOCAL   K   /0006
 GLOBAL  K   /0000
-DEBUG   K   /0002
+DEBUG   K   /0000
                     ; TEXTO
         SC  MUL  
-        DV  NEW
+        MM  TEXTO
+        LD  C
         PD  /100
         HM  /0000
 MUL     K   /0000   ; Sub-rotina SUM 
@@ -20,5 +21,3 @@ MUL     K   /0000   ; Sub-rotina SUM
 A       K   /0300
 B       K   /0010
 C       K   /0000
-                    ; DEBUG
-NEW     K   /0000

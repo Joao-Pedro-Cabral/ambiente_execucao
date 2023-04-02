@@ -1,0 +1,12 @@
+#####################
+  int SUB (int A, int B){
+       return A - B; 
+  }
+#####################
+    int A;
+    int B;
+    int C;
+    A = 29440;
+    B = -28741;
+    C = SUB(A, B);
+    print(C);
