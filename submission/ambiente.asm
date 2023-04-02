@@ -302,6 +302,7 @@ LEITURA K   /0000   ; Leitura da variável apontada pelo PONTLOC
         LD  SP
         SB  TOPLIV  
         JN  ERROEMP ; SP > TOPLIV -> Stack Overflow!
+        LD  SP
         AD  WRITE   
         MM  WRT_TOP ; WRT_TOP = WRITE + SP
         LD  TEMPEMP 

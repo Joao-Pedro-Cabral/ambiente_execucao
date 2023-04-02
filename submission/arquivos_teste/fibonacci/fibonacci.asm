@@ -3,7 +3,7 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /002E
+TEXTO   K   /0036
 LOCAL   K   /0006
 GLOBAL  K   /0006
 DEBUG   K   /0000
@@ -20,10 +20,12 @@ FIB     K   /0000   ; Subrotina FIB
         JZ  N_UM    ; if(n == 1)
         LD  A
         SB  UM      ; n - 1
+        MM  A
         SC  FIB     ; fib(n - 1)
         MM  TEMP    ; armazena fib(n - 1)
         LD  A
-        SB  DOIS    ; n - 2
+        SB  UM      ; n - 2
+        MM  A
         SC  FIB     ; fib(n - 2)
         AD  TEMP    ; fib(n - 1) + fib(n - 2)
         RS  FIB    
@@ -32,7 +34,7 @@ N_ZERO  LD  ZERO
 N_UM    LD  UM 
         RS  FIB
                     ; LOCAL
-A       K   /000A
+A       K   /0002
 B       K   /0000  
 TEMP    K   /0000
                     ; GLOBAL
