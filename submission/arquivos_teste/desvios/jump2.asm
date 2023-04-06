@@ -9,13 +9,13 @@ GLOBAL  K   /0002
 DEBUG   K   /0000
                     ; TEXTO
         SC  SUM  
-        MM  C
-        SB  CONST
-        JN  OUT_IF
-        LD  CONST
-        MM  C
+        MM  C       ; C = A + B
+        SB  CONST  
+        JN  OUT_IF  ; if(C - CONST >= 0)
+        LD  CONST   ;   C = CONST
+        MM  C         
 OUT_IF  LD  C
-        PD  /100
+        PD  /100    ; print(C)
         HM  /0000
 SUM     K   /0000   ; Sub-rotina SUM 
         LD  A

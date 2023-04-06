@@ -9,8 +9,8 @@ GLOBAL  K   /0006
 DEBUG   K   /0000
                     ; TEXTO    
         SC  FIB
-        MM  B
-        PD  /100
+        MM  B       ; B = fib(A)
+        PD  /100    ; print(B)
         HM  /0
 FIB     K   /0000   ; Subrotina FIB
         LD  A
@@ -29,9 +29,9 @@ FIB     K   /0000   ; Subrotina FIB
         SC  FIB     ; fib(n - 2)
         AD  TEMP    ; fib(n - 1) + fib(n - 2)
         RS  FIB    
-N_ZERO  LD  ZERO
+N_ZERO  LD  ZERO    ; if(n == 0) return 0
         RS  FIB
-N_UM    LD  UM 
+N_UM    LD  UM      ; if(n == 1) return 1
         RS  FIB
                     ; LOCAL
 A       K   /0002

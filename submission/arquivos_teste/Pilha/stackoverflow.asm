@@ -3,9 +3,9 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /0FD0
-LOCAL   K   /000A
-GLOBAL  K   /0008
+TEXTO   K   /0FD0   ; Aloca espaço excessivo para
+LOCAL   K   /000A   ; o texto, não deixando nenhuma
+GLOBAL  K   /0008   ; posição na memória para a pilha
 DEBUG   K   /0000
                     ; TEXTO
       GD /000  ; Lê entrada do teclado
@@ -25,12 +25,12 @@ DEBUG   K   /0000
       HM /0    ;
 SOMA     JP /000    ; Subrotina Soma
          LD VALOR0  ;
-         AD VALOR1  ;
+         AD VALOR1  ; AC = VALOR0 + VALOR 1
          RS SOMA    ;
 SUB      JP /000    ; Subrotina Sub
          LD VALOR2  ;
          SB VALOR3  ;
-         SB VALOR4  ;
+         SB VALOR4  ; AC = VALOR2 - VALOR3 - VALOR4
          RS SUB     ;        
                     ; LOCAL
 VALOR0 K /0000;

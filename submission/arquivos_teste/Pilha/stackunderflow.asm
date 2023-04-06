@@ -9,12 +9,12 @@ GLOBAL  K   /0008
 DEBUG   K   /0000
                     ; TEXTO
       LV =45   ;
-      PD /100  ;
-      RS SOMA  ;              
+      PD /100  ;  print(45)
+      RS SOMA  ;  Retorno indevido de subrotina            
       HM /0    ;
 SOMA     JP /000    ; Subrotina Soma
          LD VALOR0  ;
-         AD VALOR1  ;
+         AD VALOR1  ; AC = VALOR0 + VALOR1
          RS SOMA    ;     
                     ; LOCAL
 VALOR0 K /0000;

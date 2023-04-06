@@ -9,9 +9,9 @@ GLOBAL  K   /0000
 DEBUG   K   /0002
                     ; TEXTO
         SC  MUL  
-        DV  NEW
+        DV  NEW     ; Acesso indevido
         LD  C
-        PD  /100
+        PD  /100    ; print(C)
         HM  /0000
 MUL     K   /0000   ; Sub-rotina MUL 
         LD  A

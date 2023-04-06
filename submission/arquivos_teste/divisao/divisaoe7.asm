@@ -9,8 +9,8 @@ GLOBAL  K   /0000
 DEBUG   K   /0000
                     ; TEXTO
         SC  DIV  
-        MM  C
-        PD  /100
+        MM  C       ; C = A / B
+        PD  /100    ; print(C)
         HM  /0000
 DIV     K   /0000   ; Sub-rotina DIV 
         LD  A

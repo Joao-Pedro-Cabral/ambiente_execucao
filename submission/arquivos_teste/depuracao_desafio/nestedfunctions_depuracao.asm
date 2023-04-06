@@ -9,8 +9,8 @@ GLOBAL  K   /0000
 DEBUG   K   /0008
                     ; TEXTO
 DEBUG1  SC  SUM  
-        MM  E
-        PD  /100
+        MM  E       ; E = (A*C) + (B/D)
+        PD  /100    ; print(E)
         HM  /0000
 SUM     K   /0000   ; Sub-rotina SUM 
         SC  MUL     ; AC = (A*C)

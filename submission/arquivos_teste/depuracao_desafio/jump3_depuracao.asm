@@ -8,19 +8,19 @@ LOCAL   K   /0008
 GLOBAL  K   /0004
 DEBUG   K   /0008
                     ; TEXTO
-DEBUG1  GD  /000
-        MM  D
+DEBUG1  GD  /000    
+        MM  D       ; scan(D)
         SC  SUM  
-        MM  C
+        MM  C       ; C = A + B
         LD  D
-        SB  PP
-DEBUG2  JZ  FIRSTIF
+        SB  PP      ; Desvio se a condição
+DEBUG2  JZ  FIRSTIF ; do if for satisfeita
         LD  OO
-        MM  C
-DEBUG3  JP  PRINTC
-FIRSTIF LD  PP
-        MM  C
-PRINTC  PD  /100
+        MM  C       ;   C = OO
+DEBUG3  JP  PRINTC  
+FIRSTIF LD  PP      ; if(D - PP == 0)
+        MM  C       ;   C = PP
+PRINTC  PD  /100    ; print(C)
 DEBUG4  HM  /0000
 SUM     K   /0000   ; Sub-rotina SUM 
         LD  A

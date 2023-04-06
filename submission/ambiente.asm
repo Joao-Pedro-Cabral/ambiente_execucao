@@ -23,17 +23,8 @@ READ    K   /8000
 WRITE   K   /9000
 Cte_1   K   /FFFF
                     ; Mensagens de Erro    
-E0      K   /4530
-E1      K   /4531
-E2      K   /4532
-E4      K   /4534
-E5      K   /4535
-E6      K   /4536
-E7      K   /4537
-E8      K   /4538
-E9      K   /4539
-EA      K   /453A
-EB      K   /453B
+AO      K   /414F
+DZ      K   /445A
 NA      K   /4E41
 SF      K   /5346
 SO      K   /534F
@@ -164,17 +155,15 @@ Trata4  SC  TrataE
         LD  ACUMU   
         JN  LD_EXEC ; ACUMU < 0 e VAR > 0 -> Sem overflow
         AD  VAR    
-        JN  ERROR4  ; VAR + ACUMU < 0, VAR > 0 e ACUMU > 0 -> Overflow
+        JN  ERRORAO  ; VAR + ACUMU < 0, VAR > 0 e ACUMU > 0 -> Overflow
         JP  LD_EXEC ; VAR + ACUMU > 0, VAR > 0, ACUMU > 0 -> Sem Overflow
 NEG4    LD  ACUMU
         JN  NEG4_2
         JP  LD_EXEC ; ACUMU > 0 e VAR < 0 -> Sem overflow
 NEG4_2  AD  VAR
         JN  LD_EXEC ; VAR + ACUMU < 0, VAR < 0 e ACUMU < 0 -> Sem Overflow
-ERROR4  LD  E4
-        PD  /100    ; Error: Overflow
-        HM  FIMAIN  ; Fim da execução
-
+        JP  ERRORAO
+        
 Trata5  SC  TrataE
         SC  GETVAR  ; Obter a variável
         JN  NEG5    ; Variável negativa
@@ -183,15 +172,12 @@ Trata5  SC  TrataE
         JP  LD_EXEC ; ACUMU > 0 e VAR > 0 -> Sem overflow
 NEG5_2  SB  VAR    
         JN  LD_EXEC ; VAR + ACUMU < 0, VAR > 0 e ACUMU < 0 -> Sem overflow
-        JP  ERROR5  ; Overflow 
+        JP  ERRORAO  ; Overflow 
 NEG5    LD  ACUMU
         JN  LD_EXEC ; VAR < 0 e ACUMU < 0 -> Sem overflow
         SB  VAR
-        JN  ERROR5  ; VAR + ACUMU < 0, VAR < 0 e ACUMU > 0 -> Overflow
+        JN  ERRORAO  ; VAR + ACUMU < 0, VAR < 0 e ACUMU > 0 -> Overflow
         JP  LD_EXEC ; Sem overflow
-ERROR5  LD  E5      ; Error: Overflow
-        PD  /100
-        HM  FIMAIN  ; Fim da execução
 
 VAR2     K  /0000   ; Temporário do Trata6
 
@@ -202,14 +188,15 @@ CHECKAC MM  VAR     ; VAR = -VAR
         LD  ACUMU
         JN  MAC_1
 MULTI   MM  VAR2
-        ML  VAR
         JZ  LD_EXEC
+        ML  VAR
         DV  VAR2    ; AC = |VAR| * |ACUMU| / |ACUMU|
         SB  VAR     ; AC = AC - VAR   
         JZ  LD_EXEC
-        LD  E6      ; ERRO6, overflow
+ERRORAO LD  AO      ; AO, arithmetic overflow
         PD  /100
         HM  FIMAIN
+
 MVAR_1  ML  Cte_1   ; VAR > 0
         JP  CHECKAC
 MAC_1   ML  Cte_1   ; ACUMU > 0
@@ -220,7 +207,7 @@ Trata7  SC  TrataE
         SC  GETVAR  ; Obter variável
         JZ  ERROR7  ; Divisão por 0
         JP  LD_EXEC ; Fim da tratativa
-ERROR7  LD  E7      ; Error de divisão
+ERROR7  LD  DZ      ; Error de divisão
         PD  /100    
         HM  FIMAIN  ; Fim da execução
 

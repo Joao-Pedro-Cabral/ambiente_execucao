@@ -9,18 +9,18 @@ GLOBAL  K   /0004
 DEBUG   K   /0000
                     ; TEXTO
         GD  /000
-        MM  D
+        MM  D       ; scan(D)
         SC  SUM  
-        MM  C
+        MM  C       ; C = A + B
         LD  D
-        SB  PP
-        JZ  FIRSTIF
+        SB  PP      ; Desvio se a condição 
+        JZ  FIRSTIF ; do if for satisfeita
         LD  OO
-        MM  C
+        MM  C       ; C = OO
         JP  PRINTC
-FIRSTIF LD  PP
-        MM  C
-PRINTC  PD  /100
+FIRSTIF LD  PP      ; if(D - PP == 0)
+        MM  C       ;  C = PP
+PRINTC  PD  /100    ; print(C)
         HM  /0000
 SUM     K   /0000   ; Sub-rotina SUM 
         LD  A

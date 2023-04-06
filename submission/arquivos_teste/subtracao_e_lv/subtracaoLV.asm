@@ -9,8 +9,8 @@ GLOBAL  K   /0000
 DEBUG   K   /0000
                     ; TEXTO
         SC  SUB  
-        MM  B
-        PD  /100
+        MM  B       ; B = 800 - A
+        PD  /100    ; print(B)
         HM  /0000
 SUB     K   /0000   ; Sub-rotina SUB 
         LV  =800
