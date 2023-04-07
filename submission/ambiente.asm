@@ -184,7 +184,7 @@ VAR2     K  /0000   ; Temporário do Trata6
 
 Trata6  SC  TratADR
         SC  GETVAR  ; Obter variável
-CHECKAC MM  VAR     ; VAR = -VAR
+        MM  VAR     
         LD  ACUMU
 MULTI   MM  VAR2
         JZ  LD_EXEC
@@ -195,7 +195,6 @@ MULTI   MM  VAR2
 ERRORAO LD  AO      ; AO, arithmetic overflow
         PD  /100
         HM  FIMAIN
-
 
 Trata7  SC  TratADR
         SC  GETVAR  ; Obter variável
@@ -318,8 +317,8 @@ DMP     K   /0000
         MM  PTOPLOC ; PTOPLOC = TOPLOC + WRITE
         LD  TOPGLO  
         SB  Cte2
-        AD  WRITE
-LOOPDMP MM  PONTLOC ; PONTLOC = TOPGLO - 2 + WRITE
+        AD  WRITE   ; PONTLOC = TOPGLO - 2 + WRITE
+LOOPDMP MM  PONTLOC 
         SB  PTOPLOC 
         JN  FIMDMP  ; PONTLOC < PTOPLOC -> Fim da subrotina
         LD  SP
@@ -339,7 +338,7 @@ RD_TOP  K   /0000
 ESCRITA K   /0000   ; Mem[PONTLOC] = TEMPDMP
         LD  PONTLOC
         SB  Cte2    ; PONTLOC = PONTLOC - 2
-        JP  LOOPDMP ; Recomeçar o LOP
+        JP  LOOPDMP ; Recomeçar o LOOP
 FIMDMP  RS  DMP     ; Fim da subrotina
 ERRODMP LD  SU      ; SP = 1000 -> Erro!
         PD  /100
