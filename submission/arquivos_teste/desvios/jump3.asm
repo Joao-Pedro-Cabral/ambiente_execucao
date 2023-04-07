@@ -13,13 +13,13 @@ DEBUG   K   /0000
         SC  SUM  
         MM  C       ; C = A + B
         LD  D
-        SB  PP      ; Desvio se a condição 
+        SB  P      ; Desvio se a condição 
         JZ  FIRSTIF ; do if for satisfeita
-        LD  OO
-        MM  C       ; C = OO
+        LD  O
+        MM  C       ; C = O
         JP  PRINTC
-FIRSTIF LD  PP      ; if(D - PP == 0)
-        MM  C       ;  C = PP
+FIRSTIF LD  P      ; if(D - P == 0)
+        MM  C       ;  C = P
 PRINTC  PD  /100    ; print(C)
         HM  /0000
 SUM     K   /0000   ; Sub-rotina SUM 
@@ -32,5 +32,5 @@ B       K   /0045
 C       K   /0000
 D       K   /0000
                     ; GLOBAL
-PP      K   /5050
-OO      K   /4F4F
+P      K   /5050
+O      K   /4F4F

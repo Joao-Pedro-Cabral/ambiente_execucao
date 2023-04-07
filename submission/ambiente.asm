@@ -2,7 +2,6 @@
         <   LOCAL
         <   GLOBAL
         <   DEBUG
-        <   CHTOI
         &   /0000
                     ; Constantes
                     ; Determinar o OPCODE
@@ -114,12 +113,6 @@ FIXED   MM  OPCODE
         LD  OPCODE
         SB  CteB
         JZ  TrataB  ; OPCODE = B
-        LD  OPCODE
-        SB  CteD
-        JZ  TrataD  ; OPCODE = D
-        LD  OPCODE
-        SB  CteE
-        JZ  TrataE  ; OPCODE = E
         LD  OPCODE
         SB  CteF
         JZ  TrataF  ; OPCODE = F
@@ -250,12 +243,6 @@ READB   K   /0000
         MM  PONTEXT ; PONTEXT = Endereço de retorno da subrotina
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP)
 
-TrataD  SC  DEPURA  ; Depuração
-        LD  INSTRU  ; Carrega a instrução a ser executada
-        MM  EXEC
-EXEC    K   /0000   ; Executa a instrução
-
-
 TrataF  LD  NA      ; OS: Não suportado por C-- -> Proibido!
         PD  /100    ; Imprimir NA
         HM  FIMAIN  ; Fim da subrotina
@@ -276,6 +263,7 @@ NEXT    RS  TratADR  ; Retorno da subrotina
 
                     ; GETVAR
 GETVAR  K   /0000
+        LD  ADDR
         AD  READ
         MM  RADDR   ; RADDR = ADDR + 8000
 RADDR   K   /0000   ; Obtêm a variável da subtracao
