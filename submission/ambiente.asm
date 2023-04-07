@@ -2,6 +2,7 @@
         <   LOCAL
         <   GLOBAL
         <   DEBUG
+        <   CHTOI
         &   /0000
                     ; Constantes
                     ; Determinar o OPCODE
@@ -15,6 +16,8 @@ Cte8    K   /0008
 Cte9    K   /0009
 CteA    K   /000A     
 CteB    K   /000B 
+CteD    K   /000D
+CteE    K   /000E
 CteF    K   /000F
                     ; Auxiliares para operações aritméticas
 Cte800  K   /0800
@@ -112,6 +115,12 @@ FIXED   MM  OPCODE
         SB  CteB
         JZ  TrataB  ; OPCODE = B
         LD  OPCODE
+        SB  CteD
+        JZ  TrataD  ; OPCODE = D
+        LD  OPCODE
+        SB  CteE
+        JZ  TrataE  ; OPCODE = E
+        LD  OPCODE
         SB  CteF
         JZ  TrataF  ; OPCODE = F
 LD_EXEC SC  DEPURA  ; Depuração
@@ -125,13 +134,13 @@ FIXINST DV  Cte2
         DV  Cte800            
         JP  FIXED
 
-Trata0  SC  TrataE  ; Determina se há erro de segmentação
+Trata0  SC  TratADR  ; Determina se há erro de segmentação
         SC  DEPURA  ; Depuração
         LD  ADDR    
         AD  READ    ; PONTEXT = ADDR + READ
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JP não altera AC
 
-Trata1  SC  TrataE  ; Determina se há erro de segmentação
+Trata1  SC  TratADR  ; Determina se há erro de segmentação
         SC  DEPURA  ; Depuração
         LD  ACUMU   
         JZ  PONT1   
@@ -140,7 +149,7 @@ PONT1   LD  ADDR
         AD  READ    ; PONTEXT = ADDR + READ (sucesso no JZ)
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JZ não altera AC  
 
-Trata2  SC  TrataE  ; Determina se há erro de segmentação
+Trata2  SC  TratADR  ; Determina se há erro de segmentação
         SC  DEPURA  ; Depuração
         LD  ACUMU   
         JN  PONT2   
@@ -149,7 +158,7 @@ PONT2   LD  ADDR
         AD  READ    ; PONTEXT = ADDR + READ (sucesso no JN)
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JN não altera AC
 
-Trata4  SC  TrataE
+Trata4  SC  TratADR
         SC  GETVAR  ; Obter a variável
         JN  NEG4    ; Variável negativa
         LD  ACUMU   
@@ -164,7 +173,7 @@ NEG4_2  AD  VAR
         JN  LD_EXEC ; VAR + ACUMU < 0, VAR < 0 e ACUMU < 0 -> Sem Overflow
         JP  ERRORAO
         
-Trata5  SC  TrataE
+Trata5  SC  TratADR
         SC  GETVAR  ; Obter a variável
         JN  NEG5    ; Variável negativa
         LD  ACUMU   
@@ -181,7 +190,7 @@ NEG5    LD  ACUMU
 
 VAR2     K  /0000   ; Temporário do Trata6
 
-Trata6  SC  TrataE
+Trata6  SC  TratADR
         SC  GETVAR  ; Obter variável
         JN  MVAR_1  ; VAR < 0 -> Inverter sinal
 CHECKAC MM  VAR     ; VAR = -VAR
@@ -203,7 +212,7 @@ MAC_1   ML  Cte_1   ; ACUMU > 0
         JP  MULTI
 
 
-Trata7  SC  TrataE
+Trata7  SC  TratADR
         SC  GETVAR  ; Obter variável
         JZ  ERROR7  ; Divisão por 0
         JP  LD_EXEC ; Fim da tratativa
@@ -211,10 +220,10 @@ ERROR7  LD  DZ      ; Error de divisão
         PD  /100    
         HM  FIMAIN  ; Fim da execução
 
-Trata89 SC  TrataE  ; Confere se há erro de segmentação (Mesmo código para 8 e 9)
+Trata89 SC  TratADR  ; Confere se há erro de segmentação (Mesmo código para 8 e 9)
         JP  LD_EXEC ; Fim do tratamento
 
-TrataA  SC  TrataE  ; Checa erros de segmentação
+TrataA  SC  TratADR  ; Checa erros de segmentação
         SC  DEPURA  ; Depuração
         SC  EMP     ; A: Empilhar variáveis locais
         LD  ADDR        
@@ -230,7 +239,7 @@ WRTA    K   /0000   ; Endereço de retorno da subrotina: PONTEXT + 2
         LD  ACUMU
         RS  TRATOP  ; Fim do tratamento
 
-TrataB  SC  TrataE  ; Checa erros de segmentação
+TrataB  SC  TratADR  ; Checa erros de segmentação
         SC  DEPURA  ; Depuração
         SC  DMP     ; B: Desempilhar variáveis locais
         LD  ADDR
@@ -241,12 +250,18 @@ READB   K   /0000
         MM  PONTEXT ; PONTEXT = Endereço de retorno da subrotina
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP)
 
+TrataD  SC  DEPURA  ; Depuração
+        LD  INSTRU  ; Carrega a instrução a ser executada
+        MM  EXEC
+EXEC    K   /0000   ; Executa a instrução
+
+
 TrataF  LD  NA      ; OS: Não suportado por C-- -> Proibido!
         PD  /100    ; Imprimir NA
         HM  FIMAIN  ; Fim da subrotina
 
-                    ; Sub-rotina TrataE(ndereço)
-TrataE  K   /0000
+                    ; Sub-rotina TratADR(RESS)
+TratADR K   /0000
         SC  GETADDR ; Obter o endereço do OI
         SB  TOPTEXT 
         JN  ERRORSF ; ADDR < TOPTEXT -> Segmentation Fault
@@ -256,12 +271,11 @@ TrataE  K   /0000
 ERRORSF LD  SF      ; Erro de segmentação
         PD  /100
         HM  FIMAIN
-NEXT    RS  TrataE  ; Retorno da subrotina
+NEXT    RS  TratADR  ; Retorno da subrotina
 
 
                     ; GETVAR
 GETVAR  K   /0000
-        SC  GETADDR
         AD  READ
         MM  RADDR   ; RADDR = ADDR + 8000
 RADDR   K   /0000   ; Obtêm a variável da subtracao
