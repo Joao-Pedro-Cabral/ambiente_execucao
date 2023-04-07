@@ -64,8 +64,8 @@ LOOPM   MM  PONTEXT
         MM  RD_INST 
 RD_INST K   /0000   ; Obter instrução 
         MM  INSTRU
-        SC  TRATOP  ; Tratar e executar operação
-        MM  ACUMU   ; ACUMU = Valor do acumulador após execução
+        JP  TRATOP  ; Tratar e executar operação
+POSTRAT MM  ACUMU   ; Pós-Tratamento -> ACUMU = Valor do acumulador após execução
         LD  PONTEXT
         AD  Cte2    ; PONTEXT = PONTEXT + 2
         JP  LOOPM   ; Loop da rotina principal
@@ -78,8 +78,7 @@ VAR     K   /0000   ; Variável da instrução
 ADDR    K   /0000   ; Endereço da variável da instrução
 OPCODE  K   /0000   ; Opcode da instrução
                     ; Trata operação
-TRATOP  K   /0000
-        LD  INSTRU
+TRATOP  LD  INSTRU
         JN  FIXINST ; Corrigir instruções negativas
         DV  Cte1000 ; AC = Opcode
 FIXED   MM  OPCODE
@@ -121,7 +120,7 @@ LD_EXEC SC  DEPURA  ; Depuração
         MM  EXEC
         LD  ACUMU   ; Restaura valor antigo do acumulador
 EXEC    K   /0000   ; Executa a instrução
-        RS  TRATOP  ; Fim da subrotina
+        JP  POSTRAT  ; Fim do TRATOP
 FIXINST DV  Cte2
         AD  READ              
         DV  Cte800            
@@ -137,7 +136,7 @@ Trata1  SC  TratADR  ; Determina se há erro de segmentação
         SC  DEPURA  ; Depuração
         LD  ACUMU   
         JZ  PONT1   
-        RS  TRATOP  ; JZ falhou -> Executar próxima instrução em sequência
+        JP  POSTRAT  ; JZ falhou -> Executar próxima instrução em sequência
 PONT1   LD  ADDR    
         AD  READ    ; PONTEXT = ADDR + READ (sucesso no JZ)
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JZ não altera AC  
@@ -146,7 +145,7 @@ Trata2  SC  TratADR  ; Determina se há erro de segmentação
         SC  DEPURA  ; Depuração
         LD  ACUMU   
         JN  PONT2   
-        RS  TRATOP  ; JN falhou -> Executar próxima instrução em sequência
+        JP  POSTRAT  ; JN falhou -> Executar próxima instrução em sequência
 PONT2   LD  ADDR    
         AD  READ    ; PONTEXT = ADDR + READ (sucesso no JN)
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP) -> JN não altera AC
@@ -185,24 +184,17 @@ VAR2     K  /0000   ; Temporário do Trata6
 
 Trata6  SC  TratADR
         SC  GETVAR  ; Obter variável
-        ; JN  MVAR_1  VAR < 0 -> Inverter sinal
 CHECKAC MM  VAR     ; VAR = -VAR
         LD  ACUMU
-        ; JN  MAC_1
 MULTI   MM  VAR2
         JZ  LD_EXEC
         ML  VAR
-        DV  VAR2    ; AC = |VAR| * |ACUMU| / |ACUMU|
+        DV  VAR2    ; AC = VAR*ACUMU/ACUMU
         SB  VAR     ; AC = AC - VAR   
         JZ  LD_EXEC
 ERRORAO LD  AO      ; AO, arithmetic overflow
         PD  /100
         HM  FIMAIN
-
-MVAR_1  ML  Cte_1   ; VAR > 0
-        JP  CHECKAC
-MAC_1   ML  Cte_1   ; ACUMU > 0
-        JP  MULTI
 
 
 Trata7  SC  TratADR
@@ -230,7 +222,7 @@ WRTA    K   /0000   ; Endereço de retorno da subrotina: PONTEXT + 2
         AD  READ
         MM  PONTEXT ; PONTEXT = ADDR + READ
         LD  ACUMU
-        RS  TRATOP  ; Fim do tratamento
+        JP  POSTRAT  ; Fim do tratamento
 
 TrataB  SC  TratADR  ; Checa erros de segmentação
         SC  DEPURA  ; Depuração
