@@ -3,17 +3,16 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /0048
+TEXTO   K   /0046
 LOCAL   K   /0002
 GLOBAL  K   /0008
 DEBUG   K   /0000
                     ; TEXTO
-      GD /000 ; Lê entrada do teclado
+      LV =3   ;
       MM VALOR; Escreve em VALOR
       SC EMPI ; Chama Empilha
       SC DEMP ; Chama Desempilha
       LD VALOR; Carrega VALOR
-      PD /100 ; Escreve na tela
       HM /0   ;
 EMPI     JP /000    ; Subrotina Empilha
 INIE     LD VALOR   ; Lê a variável global VALOR

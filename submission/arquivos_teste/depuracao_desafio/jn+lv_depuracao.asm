@@ -3,7 +3,7 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /001C
+TEXTO   K   /001A
 LOCAL   K   /0006
 GLOBAL  K   /0002
 DEBUG   K   /0006
@@ -15,7 +15,6 @@ DEBUG1  JN  OUT_IF  ; if(C - CONST >= 0)
         LD  CONST   ; C = CONST
         MM  C
 OUT_IF  LD  C
-        PD  /100    ; print(C)
 DEBUG2  HM  /0000
 SUM     K   /0000   ; Sub-rotina SUM 
 DEBUG3  LV  =8

@@ -3,13 +3,13 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /0024
+TEXTO   K   /0022
 LOCAL   K   /0008
 GLOBAL  K   /0004
 DEBUG   K   /0000
                     ; TEXTO
-        GD  /000
-        MM  D       ; scan(D)
+        LV  =3
+        MM  D       ; D = 3
         SC  SUM  
         MM  C       ; C = A + B
         LD  D
@@ -17,11 +17,10 @@ DEBUG   K   /0000
         JZ  FIRSTIF ; do if for satisfeita
         LD  O
         MM  C       ; C = O
-        JP  PRINTC
+        JP  END
 FIRSTIF LD  P      ; if(D - P == 0)
         MM  C       ;  C = P
-PRINTC  PD  /100    ; print(C)
-        HM  /0000
+END     HM  /0000
 SUM     K   /0000   ; Sub-rotina SUM 
         LD  A
         AD  B       ; AC = A + B

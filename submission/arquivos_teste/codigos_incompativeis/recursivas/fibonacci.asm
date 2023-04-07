@@ -3,14 +3,13 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /0036
+TEXTO   K   /0034
 LOCAL   K   /0006
 GLOBAL  K   /0006
 DEBUG   K   /0000
                     ; TEXTO    
         SC  FIB
         MM  B       ; B = fib(A)
-        PD  /100    ; print(B)
         HM  /0
 FIB     K   /0000   ; Subrotina FIB
         LD  A

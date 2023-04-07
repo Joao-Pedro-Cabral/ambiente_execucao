@@ -3,7 +3,7 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /000E
+TEXTO   K   /000C
 LOCAL   K   /0006
 GLOBAL  K   /0000
 DEBUG   K   /0004
@@ -13,8 +13,7 @@ DEBUG   K   /0004
 DEBUG1  LD  A
         DV  B
         MM  C       ; C = A / B
-DEBUG2  PD  /100    ; print(C)
-        HM  /0000 
+DEBUG2  HM  /0000 
                     ; LOCAL
 A       K   /000A
 B       K   /0000

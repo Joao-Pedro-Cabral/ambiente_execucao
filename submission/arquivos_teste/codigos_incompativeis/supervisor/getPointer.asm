@@ -3,7 +3,7 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /000C
+TEXTO   K   /000A
 LOCAL   K   /0002
 GLOBAL  K   /0004
 DEBUG   K   /0000
@@ -11,8 +11,7 @@ DEBUG   K   /0000
          LD ZERO    
 OS_GETP  OS /057    ; Salva em AC o valor do SP
          MM POINTER
-         SB CINCO
-         PD /100 
+         SB CINCO 
          HM /0       
                     ; LOCAL
 POINTER    K /0000

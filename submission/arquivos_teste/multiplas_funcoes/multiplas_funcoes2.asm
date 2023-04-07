@@ -3,14 +3,13 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /0024
+TEXTO   K   /0022
 LOCAL   K   /000C
 GLOBAL  K   /0000
 DEBUG   K   /0000
                     ; TEXTO
         SC  SUM  
         MM  E       ; E = (A + C) + (B + D)
-        PD  /100    ; print(E)
         HM  /0000
 SUM     K   /0000   ; Sub-rotina SUM 
         SC  SUM1    ; AC = (A + C)

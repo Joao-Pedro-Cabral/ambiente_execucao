@@ -3,13 +3,12 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /001C
+TEXTO   K   /001A
 LOCAL   K   /0004
 GLOBAL  K   /0002
 DEBUG   K   /0000
                     ; TEXTO
         SC  FAT 
-        PD  /100    ; print(AC)
         HM  /0
 FAT     K   /0000   ; Subrotina do fatorial
         LD  N       

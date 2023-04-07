@@ -3,13 +3,12 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /0010
+TEXTO   K   /000E
 LOCAL   K   /000A
 GLOBAL  K   /0008
 DEBUG   K   /0000
                     ; TEXTO
       LV =45   ;
-      PD /100  ;  print(45)
       RS SOMA  ;  Retorno indevido de subrotina            
       HM /0    ;
 SOMA     JP /000    ; Subrotina Soma

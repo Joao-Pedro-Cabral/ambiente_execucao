@@ -3,14 +3,13 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /0010
+TEXTO   K   /000E
 LOCAL   K   /0006
 GLOBAL  K   /0000
 DEBUG   K   /0000
                     ; TEXTO
         SC  MUL  
         MM  C       ; C = A * B
-        PD  /100    ; print(C)
         HM  /0000
 MUL     K   /0000   ; Sub-rotina MUL 
         LD  A
