@@ -185,25 +185,17 @@ VAR2     K  /0000   ; Temporário do Trata6
 
 Trata6  SC  TratADR
         SC  GETVAR  ; Obter variável
-        ; JN  MVAR_1  VAR < 0 -> Inverter sinal
-CHECKAC MM  VAR     ; VAR = -VAR
+CHECKAC MM  VAR
         LD  ACUMU
-        ; JN  MAC_1
 MULTI   MM  VAR2
         JZ  LD_EXEC
         ML  VAR
-        DV  VAR2    ; AC = |VAR| * |ACUMU| / |ACUMU|
+        DV  VAR2    ; AC = VAR * ACUMU / ACUMU
         SB  VAR     ; AC = AC - VAR   
         JZ  LD_EXEC
 ERRORAO LD  AO      ; AO, arithmetic overflow
         PD  /100
         HM  FIMAIN
-
-MVAR_1  ML  Cte_1   ; VAR > 0
-        JP  CHECKAC
-MAC_1   ML  Cte_1   ; ACUMU > 0
-        JP  MULTI
-
 
 Trata7  SC  TratADR
         SC  GETVAR  ; Obter variável
