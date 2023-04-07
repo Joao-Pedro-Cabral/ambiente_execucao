@@ -185,10 +185,10 @@ VAR2     K  /0000   ; Temporário do Trata6
 
 Trata6  SC  TratADR
         SC  GETVAR  ; Obter variável
-        JN  MVAR_1  ; VAR < 0 -> Inverter sinal
+        ; JN  MVAR_1  VAR < 0 -> Inverter sinal
 CHECKAC MM  VAR     ; VAR = -VAR
         LD  ACUMU
-        JN  MAC_1
+        ; JN  MAC_1
 MULTI   MM  VAR2
         JZ  LD_EXEC
         ML  VAR
