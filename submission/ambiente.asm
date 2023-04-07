@@ -326,8 +326,8 @@ DMP     K   /0000
         MM  PTOPLOC ; PTOPLOC = TOPLOC + WRITE
         LD  TOPGLO  
         SB  Cte2
-        AD  WRITE
-LOOPDMP MM  PONTLOC ; PONTLOC = TOPGLO - 2 + WRITE
+        AD  WRITE   ; PONTLOC = TOPGLO - 2 + WRITE
+LOOPDMP MM  PONTLOC 
         SB  PTOPLOC 
         JN  FIMDMP  ; PONTLOC < PTOPLOC -> Fim da subrotina
         LD  SP
@@ -347,7 +347,7 @@ RD_TOP  K   /0000
 ESCRITA K   /0000   ; Mem[PONTLOC] = TEMPDMP
         LD  PONTLOC
         SB  Cte2    ; PONTLOC = PONTLOC - 2
-        JP  LOOPDMP ; Recomeçar o LOP
+        JP  LOOPDMP ; Recomeçar o LOOP
 FIMDMP  RS  DMP     ; Fim da subrotina
 ERRODMP LD  SU      ; SP = 1000 -> Erro!
         PD  /100
