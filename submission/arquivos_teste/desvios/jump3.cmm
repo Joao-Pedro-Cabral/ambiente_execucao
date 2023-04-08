@@ -15,7 +15,7 @@
     A = 21248;
     B = 69;
 
-    scan(D);
+    D = 3;
     C = SUM(A, B);
     if(D == PP) 
        C = PP;
