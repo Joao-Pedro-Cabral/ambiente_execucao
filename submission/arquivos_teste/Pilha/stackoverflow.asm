@@ -3,7 +3,7 @@
         >   GLOBAL  ;
         >   DEBUG   ;
         &   /0000
-TEXTO   K   /0FD0   ; Aloca espaço excessivo para
+TEXTO   K   /08BC   ; Aloca espaço excessivo para
 LOCAL   K   /000A   ; o texto, não deixando nenhuma
 GLOBAL  K   /0008   ; posição na memória para a pilha
 DEBUG   K   /0000
