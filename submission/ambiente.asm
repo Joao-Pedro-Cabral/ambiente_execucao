@@ -2,9 +2,16 @@
         <   LOCAL
         <   GLOBAL
         <   DEBUG
+        >   SCAN
+        <   ARG_SN
+        >   PRINT
+        <   ARG_PT1
+        <   ARG_PT2
+        <   ARG_PT3
+
         &   /0000
                     ; Constantes
-                    ; Determinar o OPCODE
+                    ; Determinar o OPCODE                
 Cte1    K   /0001
 Cte2    K   /0002  
 Cte4    K   /0004
@@ -19,6 +26,11 @@ CteD    K   /000D
 CteE    K   /000E
 CteF    K   /000F
                     ; Auxiliares para operações aritméticas
+Cte10   K   /0010
+Cte30   K   /0030
+Cte31   K   /0031
+Cte40   K   /0040
+Cte100  K   /0100
 Cte800  K   /0800
 Cte1000 K   /1000  
 READ    K   /8000   
@@ -113,14 +125,20 @@ FIXED   MM  OPCODE
         SB  CteB
         JZ  TrataB  ; OPCODE = B
         LD  OPCODE
+        SB  CteD
+        JZ  TratDEF ; OPCODE = D
+        LD  OPCODE
+        SB  CteE
+        JZ  TratDEF ; OPCODE = E
+        LD  OPCODE
         SB  CteF
-        JZ  TrataF  ; OPCODE = F
+        JZ  TratDEF ; OPCODE = F
 LD_EXEC SC  DEPURA  ; Depuração
         LD  INSTRU  ; Carrega a instrução a ser executada(OPCODE = 4 a 9 ou C ou D)
         MM  EXEC
         LD  ACUMU   ; Restaura valor antigo do acumulador
 EXEC    K   /0000   ; Executa a instrução
-        JP  POSTRAT  ; Fim do TRATOP
+        JP  POSTRAT ; Fim do TRATOP
 FIXINST DV  Cte2
         AD  READ              
         DV  Cte800            
@@ -234,7 +252,7 @@ READB   K   /0000
         MM  PONTEXT ; PONTEXT = Endereço de retorno da subrotina
         JP  LOOPM   ; Pulo para a próxima iteração do loop(sem terminar TRATOP)
 
-TrataF  LD  NA      ; OS: Não suportado por C-- -> Proibido!
+TratDEF LD  NA      ; GD, PD, OS: Não suportado por C-- -> Proibido!
         PD  /100    ; Imprimir NA
         HM  FIMAIN  ; Fim da subrotina
 
@@ -363,4 +381,143 @@ BREAKP  K   /0000   ; BREAK-POINT
         JP  LOOPDB  ; Recomeçar loop
 BREAK   GD  /000    ; BREAK-POINT
 FIMDEPU RS  DEPURA  ; Fim da depuração
+
+                    ; Biblioteca
+        &   /0740
+INT     K   /0000
+CHAR    K   /0000
+I2CH    K   /0000   ; Subrotina I2CH
+
+        &   /0780
+TEMPCH  K   /0000
+TEMPCH2 K   /0000
+CH2I    K   /0000
+        LD  CHAR
+        DV  Cte100  
+        MM  TEMPCH  ; TEMPCH = CHAR/100
+        ML  Cte100
+        SB  CHAR
+        ML  Cte_1
+        MM  CHAR2I  ; CHAR2I = (TEMPCH*100 - CHAR)*(-1)
+        SC  PEGAINT
+        MM  TEMPCH2 ; TEMPCH2 virou int
+        LD  TEMPCH
+        MM  CHAR2I
+        SC  PEGAINT
+        MM  TEMPCH  ; TEMPCH virou int
+        ML  Cte10
+        AD  TEMPCH2 
+        MM  INT     ; INT = TEMPCH*10 + TEMPCH2
+        RS  CH2I
+
+        &   /07B0
+CHAR2I  K   /0000
+PEGAINT K   /0000
+        LD  CHAR2I
+        SB  Cte40
+        JN  DEC     ; CHAR2I < 40 => CHAR2I está entre 0 e 9
+        LD  CHAR2I
+        SB  Cte31
+        MM  CHAR2I  ; CHAR2I agora é int
+        RS  PEGAINT
+DEC     LD  CHAR2I
+        SB  Cte30
+        MM  CHAR2I  ; CHAR2I agora é int
+        RS  PEGAINT 
+
+        &   /0800   ; Subrotina SCAN
+ARG_SN  K   /0000
+TEMPSN  K   /0000
+SCAN    K   /0000
+        GD  /000    ; Pegar os dois primeiros bytes
+        MM  CHAR        
+        SC  CH2I    ; Converter para int
+        ML  Cte100  ; Shift de 2 casas
+        MM  TEMPSN
+        GD  /000    ; Pegar os dois últimos bytes
+        MM  CHAR        
+        SC  CH2I    ; Converter para int
+        AD  TEMPSN  ; Obtendo o int digitado
+        MM  ARG_SN
+        RS  SCAN
+
+        &   /0840
+INTMSB  K   /0000
+INTLSB  K   /0000
+INT3    K   /0000
+INT2    K   /0000
+INT1    K   /0000
+INT0    K   /0000
+IMPINT  K   /0000
+        LD  INT
+        DV  Cte100
+        JN  FIXMSB 
+FIXEMSB MM  INTMSB  ; INTMSB = INT/100 (desconsiderando sinal)
+        ML  Cte100
+        SB  INT
+        ML  Cte_1
+        MM  INTLSB  ; INTLSB = (INTMSB*100 - INT)*(-1)
+        LD  INTMSB
+        DV  Cte10
+        MM  INT3
+        ML  Cte10
+        SB  INTMSB
+        ML  Cte_1 
+        MM  INT2    ; INT2 = (INT3*10 - INTMSB)*(-1)
+        LD  INTLSB
+        DV  Cte10
+        MM  INT1
+        ML  Cte10
+        SB  INTLSB
+        ML  Cte_1 
+        MM  INT0    ; INT0 = (INT1*10 - INTLSB)*(-1)
+        LD  INT3
+        SB  CteA 
+        JN  SOMA303
+        AD  Cte31
+MLINT3  ML  Cte100
+        MM  INT3   ; INT3 = char(INT3)*100
+        LD  INT2
+        SB  CteA   
+        JN  SOMA302
+        AD  Cte31   
+SUMINT2 AD  INT3   ; AC = char(INT2) + INT3
+        PD  /100   ; Imprimir MSB
+        LD  INT1
+        SB  CteA
+        JN  SOMA301
+        AD  Cte31
+MLINT1  ML  Cte100
+        MM  INT1   ; INT1 = char(INT1)*100
+        LD  INT0
+        SB  CteA
+        JN  SOMA300
+        AD  Cte31   
+SUMINT0 AD  INT1   ; AC = char(INT0) + INT1
+        PD  /100   ; Imprimir LSB
+        RS  IMPINT ; Fim da subrotina
+
+FIXMSB  AD  Cte100
+        JP  FIXEMSB
+SOMA303 AD  Cte30
+        JP  MLINT3
+SOMA302 AD  Cte30
+        JP  SUMINT2
+SOMA301 AD  Cte30
+        JP  MLINT1
+SOMA300 AD  Cte30
+        JP  SUMINT0
+
+        &   /08A0
+PRINT   K   /0000
+        LD  ARG_PT1
+        MM  INT
+        SC  IMPINT  ; Imprime 1º int
+        LD  ARG_PT2
+        JZ  FIM_PT  ; Se ARG_PT2 = 0 -> Expressão acabou
+        PD  /100
+        LD  ARG_PT3
+        MM  INT
+        SC  IMPINT  ; Imprime 2º int
+FIM_PT  RS  PRINT
         #   MAIN    ; Executar a função principal
