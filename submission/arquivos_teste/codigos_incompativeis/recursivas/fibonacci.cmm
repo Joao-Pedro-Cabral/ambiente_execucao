@@ -11,4 +11,3 @@ int fib (int n){
       A = 5;
       
       B = fib(A);
-      print(B); 

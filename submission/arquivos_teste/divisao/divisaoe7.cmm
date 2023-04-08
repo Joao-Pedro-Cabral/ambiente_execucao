@@ -9,5 +9,4 @@
     A = 21248;
     B = 0;
     C = DIV(A, B);
-    print(C);
     

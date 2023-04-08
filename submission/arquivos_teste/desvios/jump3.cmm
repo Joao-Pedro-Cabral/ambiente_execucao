@@ -23,6 +23,5 @@
        C = OO;
     if(D < PP)
        C = OO;
-    print(C);
     
 

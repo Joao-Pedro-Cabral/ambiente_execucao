@@ -9,5 +9,3 @@
     A = 768;
     B = 16;
     C = MUL(A, B);
-    print(C);
-    
