@@ -27,6 +27,10 @@ CteE    K   /000E
 CteF    K   /000F
                     ; Auxiliares para operações aritméticas
 Cte10   K   /0010
+Cte2A   K   /002A
+Cte2B   K   /002B
+Cte2D   K   /002D
+Cte2F   K   /002F
 Cte30   K   /0030
 Cte37   K   /0037
 Cte40   K   /0040
@@ -256,14 +260,14 @@ SC_PT   SC  DEPURA   ; Depuração -> SCAN e PRINT -> Execução Privilegiada
         LD  ADDR        
         AD  WRITE
         MM  WRTA2
-        LD  POSTRAT 
+        LV  POSTRAT 
 WRTA2   K   /0000    ; Endereço de retorno da subrotina: POSTRAT
         JP  INI_PT   ; Executar print
 SC_SN   SC  DEPURA   ; Depuração -> SCAN e PRINT -> Execução Privilegiada
         LD  ADDR        
         AD  WRITE
         MM  WRTA3
-        LD  POSTRAT 
+        LV  POSTRAT 
 WRTA3   K   /0000   ; Endereço de retorno da subrotina: POSTRAT
         JP  INI_SN  ; Executar scan
 
@@ -444,7 +448,7 @@ PEGAINT K   /0000
         SB  Cte40
         JN  DEC     ; CHAR2I < 40 => CHAR2I está entre 0 e 9
         LD  CHAR2I
-        SB  Cte31
+        SB  Cte37
         MM  CHAR2I  ; CHAR2I agora é int
         RS  PEGAINT
 DEC     LD  CHAR2I
@@ -455,7 +459,14 @@ DEC     LD  CHAR2I
         &   /0800   ; Subrotina SCAN
 TEMPSN  K   /0000
 SCAN    K   /0000
-INI_SN  GD  /000    ; Pegar os dois primeiros bytes
+INI_SN  LD  ARG_SN
+        SB  TOPTEXT
+        JN  ERRORSF ; ARG_SN - TOPTEXT < 0 -> Segmentation Fault
+        LD  ARG_SN
+        SB  TOPDEB
+        JN  GETDAT
+        JP  ERRORSF  
+GETDAT  GD  /000    ; Pegar os dois primeiros bytes
         MM  CHAR        
         SC  CH2I    ; Converter para int
         ML  Cte100  ; Shift de 2 casas
