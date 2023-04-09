@@ -417,11 +417,11 @@ FIMDEPU RS  DEPURA  ; Fim da depuração
         &   /0740
 INT     K   /0000
 CHAR    K   /0000
-I2CH    K   /0000   ; Subrotina I2CH
 
         &   /0780
 TEMPCH  K   /0000
 TEMPCH2 K   /0000
+                    ; Subrotina CH2I
 CH2I    K   /0000
         LD  CHAR
         DV  Cte100  
@@ -443,6 +443,7 @@ CH2I    K   /0000
 
         &   /07B0
 CHAR2I  K   /0000
+                    ; Subrotina PEGAINT
 PEGAINT K   /0000
         LD  CHAR2I
         SB  Cte40
@@ -456,8 +457,9 @@ DEC     LD  CHAR2I
         MM  CHAR2I  ; CHAR2I agora é int
         RS  PEGAINT 
 
-        &   /0800   ; Subrotina SCAN
+        &   /0800   
 TEMPSN  K   /0000
+                    ; Subrotina SCAN
 SCAN    K   /0000
 INI_SN  LD  ARG_SN
         SB  TOPTEXT
@@ -555,32 +557,32 @@ SOMA300 LD  INT0
 
                     ; Subrotina PRINT
 PRINT   K   /0000
-INI_PT  LD  ARG_PT2 
-        SB  Cte2A
+INI_PT  LD  ARG_PT2 ; Verifica se é 
+        SB  Cte2A   ; multiplicação
         JZ  ML_PT 
-        LD  ARG_PT2
-        SB  Cte2B
+        LD  ARG_PT2 ; Verifica se é
+        SB  Cte2B   ; adição
         JZ  AD_PT 
-        LD  ARG_PT2
-        SB  Cte2D
+        LD  ARG_PT2 ; Verifica se é
+        SB  Cte2D   ; subtração
         JZ  SB_PT 
-        LD  ARG_PT2
-        SB  Cte2F
+        LD  ARG_PT2 ; Verifica se é
+        SB  Cte2F   ; Divisão
         JZ  DV_PT 
-        LD  ARG_PT1
-WR_INT  MM  INT        
+        LD  ARG_PT1 ; Caso contrário
+WR_INT  MM  INT     ; é só uma var;   
         SC  IMPINT  ; Imprime int
         RS  PRINT
-ML_PT   LD  ARG_PT1
-        ML  ARG_PT3
+ML_PT   LD  ARG_PT1 ; Efetua a
+        ML  ARG_PT3 ; operação
         JP  WR_INT
-AD_PT   LD  ARG_PT1
-        AD  ARG_PT3
+AD_PT   LD  ARG_PT1 ; Efetua a
+        AD  ARG_PT3 ; operação
         JP  WR_INT
-SB_PT   LD  ARG_PT1
-        SB  ARG_PT3
+SB_PT   LD  ARG_PT1 ; Efetua a
+        SB  ARG_PT3 ; operação
         JP  WR_INT
-DV_PT   LD  ARG_PT1
-        DV  ARG_PT3
+DV_PT   LD  ARG_PT1 ; Efetua a
+        DV  ARG_PT3 ; operação
         JP  WR_INT
         #   MAIN    ; Executar a função principal
