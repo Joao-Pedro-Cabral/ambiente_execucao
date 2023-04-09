@@ -2,6 +2,10 @@
         >   LOCAL   ;
         >   GLOBAL  ;
         >   DEBUG   ;
+        >   ARG_PT1
+        >   ARG_PT2
+        >   ARG_PT3
+        >   ARG_SN
         &   /0000
 TEXTO   K   /0022
 LOCAL   K   /0008
@@ -12,7 +16,7 @@ DEBUG1  LV  =3
         MM  D       ; D = 3
         SC  SUM  
         MM  C       ; C = A + B
-        LD  D
+        AD  D
         SB  PP      ; Desvio se a condição
 DEBUG2  JZ  FIRSTIF ; do if for satisfeita
         LD  OO
@@ -38,3 +42,8 @@ OO      K   /4F4F
         LD  DEBUG2
         LD  DEBUG3
         LD  END
+                    ; ARGS print & scan
+ARG_PT1 K   /0000
+ARG_PT2 K   /0000
+ARG_PT3 K   /0000
+ARG_SN  K   /0000

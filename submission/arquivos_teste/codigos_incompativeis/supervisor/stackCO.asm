@@ -2,6 +2,10 @@
         >   LOCAL   ;
         >   GLOBAL  ;
         >   DEBUG   ;
+        >   ARG_PT1
+        >   ARG_PT2
+        >   ARG_PT3
+        >   ARG_SN
         &   /0000
 TEXTO   K   /0046
 LOCAL   K   /0002
@@ -44,9 +48,14 @@ OS_GETST OS /057    ; Desempilha o valor
          MM VALOR   ; Salva o valor desempilhado em VALOR
          RS DEMP    ;
                     ; LOCAL
-VALOR K /0000;
+VALOR    K   /0000
                     ; GLOBAL
-ZERO K /0000;
-UM   K /0001;
-DOIS K /0002;
-TRES K /0003; 
+ZERO     K /0000;
+UM       K /0001;
+DOIS     K /0002;
+TRES     K /0003; 
+                    ; ARGS print & scan
+ARG_PT1 K   /0000
+ARG_PT2 K   /0000
+ARG_PT3 K   /0000
+ARG_SN  K   /0000

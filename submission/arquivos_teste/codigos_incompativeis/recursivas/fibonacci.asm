@@ -2,9 +2,13 @@
         >   LOCAL   ;
         >   GLOBAL  ;
         >   DEBUG   ;
+        >   ARG_PT1
+        >   ARG_PT2
+        >   ARG_PT3
+        >   ARG_SN
         &   /0000
 TEXTO   K   /0034
-LOCAL   K   /0006
+LOCAL   K   /000E
 GLOBAL  K   /0006
 DEBUG   K   /0000
                     ; TEXTO    
@@ -40,3 +44,8 @@ TEMP    K   /0000
 ZERO    K   /0000
 UM      K   /0001
 DOIS    K   /0002 
+                    ; ARGS print & scan
+ARG_PT1 K   /0000
+ARG_PT2 K   /0000
+ARG_PT3 K   /0000
+ARG_SN  K   /0000

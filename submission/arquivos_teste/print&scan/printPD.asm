@@ -20,8 +20,8 @@ DEBUG   K   /0000
 A       K   /5300
 B       K   /0045
 C       K   /0000   
-;
+                    ; ARGS print & scan
 ARG_PT1 K   /0000
 ARG_PT2 K   /0000
 ARG_PT3 K   /0000
-ARG_SN  K   /0000 
+ARG_SN  K   /0000
