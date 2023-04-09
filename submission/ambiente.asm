@@ -28,7 +28,7 @@ CteF    K   /000F
                     ; Auxiliares para operações aritméticas
 Cte10   K   /0010
 Cte30   K   /0030
-Cte31   K   /0031
+Cte37   K   /0037
 Cte40   K   /0040
 Cte100  K   /0100
 Cte800  K   /0800
@@ -56,8 +56,14 @@ TOPLIV  K   /0000   ; Primeiro endereço da área livre
         &   /0200
 PONTEXT K   /0000   ; Endereço atual do texto
 PONTLIV K   /0000   ; 1º endereço livre somado com READ
+ADDR_PT K   /0000   ; Endereço do PRINT
+ADDR_SN K   /0000   ; Endereço do SCAN
                     ; Programa Principal
-MAIN    LV  TEXTO
+MAIN    LV  PRINT
+        MM  ADDR_PT
+        LV  SCAN
+        MM  ADDR_SN
+        LV  TEXTO
         AD  Cte8   
         MM  TOPTEXT ; TOPTEXT = 8 + & TEXTO
         AD  TEXTO
@@ -225,9 +231,15 @@ ERROR7  LD  DZ      ; Error de divisão
 Trata89 SC  TratADR  ; Confere se há erro de segmentação (Mesmo código para 8 e 9)
         JP  LD_EXEC ; Fim do tratamento
 
-TrataA  SC  TratADR  ; Checa erros de segmentação
-        SC  DEPURA  ; Depuração
-        SC  EMP     ; A: Empilhar variáveis locais
+TrataA  SC  GETADDR
+        SB  ADDR_PT
+        JZ  SC_PT    ; ADDR = PRINT -> Execução Privilegiada
+        LD  ADDR
+        SB  ADDR_SN
+        JZ  SC_SN    ; ADDR = SCAN -> Execução Privilegiada
+        SC  TratADR  ; Checa erros de segmentação
+        SC  DEPURA   ; Depuração
+        SC  EMP      ; A: Empilhar variáveis locais
         LD  ADDR        
         AD  WRITE
         MM  WRTA
@@ -237,9 +249,24 @@ TrataA  SC  TratADR  ; Checa erros de segmentação
 WRTA    K   /0000   ; Endereço de retorno da subrotina: PONTEXT + 2
         LD  ADDR
         AD  READ
-        MM  PONTEXT ; PONTEXT = ADDR + READ
+        MM  PONTEXT  ; PONTEXT = ADDR + READ
         LD  ACUMU
         JP  POSTRAT  ; Fim do tratamento
+SC_PT   SC  DEPURA   ; Depuração -> SCAN e PRINT -> Execução Privilegiada
+        LD  ADDR        
+        AD  WRITE
+        MM  WRTA2
+        LD  POSTRAT 
+WRTA2   K   /0000    ; Endereço de retorno da subrotina: POSTRAT
+        JP  INI_PT   ; Executar print
+SC_SN   SC  DEPURA   ; Depuração -> SCAN e PRINT -> Execução Privilegiada
+        LD  ADDR        
+        AD  WRITE
+        MM  WRTA3
+        LD  POSTRAT 
+WRTA3   K   /0000   ; Endereço de retorno da subrotina: POSTRAT
+        JP  INI_SN  ; Executar scan
+
 
 TrataB  SC  TratADR  ; Checa erros de segmentação
         SC  DEPURA  ; Depuração
@@ -426,10 +453,9 @@ DEC     LD  CHAR2I
         RS  PEGAINT 
 
         &   /0800   ; Subrotina SCAN
-ARG_SN  K   /0000
 TEMPSN  K   /0000
 SCAN    K   /0000
-        GD  /000    ; Pegar os dois primeiros bytes
+INI_SN  GD  /000    ; Pegar os dois primeiros bytes
         MM  CHAR        
         SC  CH2I    ; Converter para int
         ML  Cte100  ; Shift de 2 casas
@@ -474,50 +500,76 @@ FIXEMSB MM  INTMSB  ; INTMSB = INT/100 (desconsiderando sinal)
         LD  INT3
         SB  CteA 
         JN  SOMA303
-        AD  Cte31
+        LD  INT3
+        AD  Cte37
 MLINT3  ML  Cte100
         MM  INT3   ; INT3 = char(INT3)*100
         LD  INT2
         SB  CteA   
         JN  SOMA302
-        AD  Cte31   
+        LD  INT2
+        AD  Cte37   
 SUMINT2 AD  INT3   ; AC = char(INT2) + INT3
         PD  /100   ; Imprimir MSB
         LD  INT1
         SB  CteA
         JN  SOMA301
-        AD  Cte31
+        LD  INT1
+        AD  Cte37
 MLINT1  ML  Cte100
         MM  INT1   ; INT1 = char(INT1)*100
         LD  INT0
         SB  CteA
         JN  SOMA300
-        AD  Cte31   
+        LD  INT0
+        AD  Cte37   
 SUMINT0 AD  INT1   ; AC = char(INT0) + INT1
         PD  /100   ; Imprimir LSB
         RS  IMPINT ; Fim da subrotina
 
 FIXMSB  AD  Cte100
         JP  FIXEMSB
-SOMA303 AD  Cte30
+SOMA303 LD  INT3
+        AD  Cte30
         JP  MLINT3
-SOMA302 AD  Cte30
+SOMA302 LD  INT2
+        AD  Cte30
         JP  SUMINT2
-SOMA301 AD  Cte30
+SOMA301 LD  INT1
+        AD  Cte30
         JP  MLINT1
-SOMA300 AD  Cte30
+SOMA300 LD  INT0
+        AD  Cte30
         JP  SUMINT0
 
-        &   /08A0
+                    ; Subrotina PRINT
 PRINT   K   /0000
-        LD  ARG_PT1
-        MM  INT
-        SC  IMPINT  ; Imprime 1º int
+INI_PT  LD  ARG_PT2 
+        SB  Cte2A
+        JZ  ML_PT 
         LD  ARG_PT2
-        JZ  FIM_PT  ; Se ARG_PT2 = 0 -> Expressão acabou
-        PD  /100
-        LD  ARG_PT3
-        MM  INT
-        SC  IMPINT  ; Imprime 2º int
-FIM_PT  RS  PRINT
+        SB  Cte2B
+        JZ  AD_PT 
+        LD  ARG_PT2
+        SB  Cte2D
+        JZ  SB_PT 
+        LD  ARG_PT2
+        SB  Cte2F
+        JZ  DV_PT 
+        LD  ARG_PT1
+WR_INT  MM  INT        
+        SC  IMPINT  ; Imprime int
+        RS  PRINT
+ML_PT   LD  ARG_PT1
+        ML  ARG_PT3
+        JP  WR_INT
+AD_PT   LD  ARG_PT1
+        AD  ARG_PT3
+        JP  WR_INT
+SB_PT   LD  ARG_PT1
+        SB  ARG_PT3
+        JP  WR_INT
+DV_PT   LD  ARG_PT1
+        DV  ARG_PT3
+        JP  WR_INT
         #   MAIN    ; Executar a função principal
